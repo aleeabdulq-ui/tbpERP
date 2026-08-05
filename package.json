@@ -1,0 +1,28 @@
+{
+  "name": "tbp-erp",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@11.16.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm:dev -w @nexus/api\" \"npm:dev -w @nexus/web\"",
+    "build": "npm run build -w @nexus/api && npm run build -w @nexus/web",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "playwright": "1.55.0",
+    "prisma": "^6.8.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3"
+  }
+}
