@@ -1,0 +1,563 @@
+// TBP ERP — data model
+// Reconstructed from the API's usage of the Prisma client.
+// Every model carries `deletedAt` for soft deletes where the API filters on it,
+// plus `createdAt`/`updatedAt` timestamps ordered/audited by the API.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Identity & access ───────────────────────────────────────────────
+
+model Role {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(120)
+  description String?   @db.VarChar(500)
+  permissions Json // string[] of permission keys, ["*"] means full access
+  users       User[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([deletedAt])
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  email          String    @unique @db.VarChar(191)
+  passwordHash   String    @db.VarChar(191)
+  roleId         Int
+  role           Role      @relation(fields: [roleId], references: [id])
+  employee       Employee?
+  refreshTokens  RefreshToken[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+  sentMessages   Message[]        @relation("MessageSender")
+  receivedMessages Message[]      @relation("MessageRecipient")
+  staffPayments  StaffPayment[]
+  reviewedLeave  LeaveRequest[]   @relation("LeaveReviewer")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  @@index([deletedAt])
+}
+
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique @db.VarChar(64) // sha256 hex
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  email     String    @db.VarChar(191)
+  tokenHash String    @unique @db.VarChar(64)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  action     String   @db.VarChar(120)
+  entityType String   @db.VarChar(120)
+  entityId   String   @db.VarChar(120)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+// ── Organisation ─────────────────────────────────────────────────────
+
+model Department {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique @db.VarChar(160)
+  code      String     @unique @db.VarChar(20)
+  employees Employee[]
+  messages  Message[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+
+  @@index([deletedAt])
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+model Employee {
+  id                Int            @id @default(autoincrement())
+  userId            Int            @unique
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employeeNumber    String         @unique @db.VarChar(30)
+  firstName         String         @db.VarChar(80)
+  lastName          String         @db.VarChar(80)
+  phone             String?        @db.VarChar(40)
+  avatarUrl         String?        @db.VarChar(300)
+  signatureFileName String?        @db.VarChar(300)
+  designation       String         @db.VarChar(120)
+  status            EmployeeStatus @default(ACTIVE)
+  joinedAt          DateTime
+  officeLocation    String         @db.VarChar(120)
+  // Personal/HR record kept as JSON; NIN/BVN/accountNumber entries are
+  // stored as { encrypted, last4 } produced by lib/sensitive-data.ts.
+  hrProfile         Json?
+  departmentId      Int
+  department        Department     @relation(fields: [departmentId], references: [id])
+  managerId         Int?
+  manager           Employee?      @relation("EmployeeManager", fields: [managerId], references: [id])
+  teamMembers       Employee[]     @relation("EmployeeManager")
+  employmentHistory EmploymentHistory[]
+  tasks             Task[]              @relation("TaskAssignee")
+  createdTasks      Task[]              @relation("TaskCreator")
+  taskComments      TaskComment[]       @relation("TaskCommentAuthor")
+  taskActivities    TaskActivity[]      @relation("TaskActivityActor")
+  taskAttachments   TaskAttachment[]    @relation("TaskAttachmentUploader")
+  createdProjects   Project[]           @relation("ProjectCreator")
+  coordinatedProjects Project[]         @relation("ProjectCoordinator")
+  leaveRequests     LeaveRequest[]
+  payrolls          Payroll[]
+  attendances       Attendance[]
+  performanceReviews PerformanceReview[]
+  trainings         EmployeeTraining[]
+  benefits          EmployeeBenefit[]
+  staffPayments     StaffPayment[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime?
+
+  @@index([departmentId, deletedAt])
+  @@index([status])
+}
+
+model EmploymentHistory {
+  id               Int       @id @default(autoincrement())
+  employeeId       Int
+  employee         Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  companyName      String    @db.VarChar(200)
+  positionHeld     String    @db.VarChar(160)
+  startedAt        DateTime?
+  endedAt          DateTime?
+  reasonForLeaving String?   @db.VarChar(500)
+  createdAt        DateTime  @default(now())
+
+  @@index([employeeId])
+}
+
+// ── Tasks & workflow ─────────────────────────────────────────────────
+
+enum TaskStatus {
+  TODO
+  ASSIGNED
+  IN_PROGRESS
+  REVIEW
+  RETURNED
+  COMPLETED
+  OVERDUE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskCategory {
+  GENERAL
+  HR_ADMIN
+  FINANCE
+  PROJECT
+}
+
+model Task {
+  id                    Int          @id @default(autoincrement())
+  title                 String       @db.VarChar(160)
+  description           String?      @db.Text
+  status                TaskStatus   @default(ASSIGNED)
+  priority              TaskPriority @default(MEDIUM)
+  category              TaskCategory @default(GENERAL)
+  dueAt                 DateTime?
+  acceptedAt            DateTime?
+  submittedAt           DateTime?
+  completedAt           DateTime?
+  returnedAt            DateTime?
+  returnReason          String?      @db.Text
+  submissionNote        String?      @db.Text
+  reminderIntervalHours Int          @default(24)
+  nextReminderAt        DateTime?
+  reminderSentAt        DateTime?
+  reminderCount         Int          @default(0)
+  idempotencyKey        String?      @unique @db.VarChar(100)
+  assigneeId            Int
+  assignee              Employee     @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  createdById           Int
+  createdBy             Employee     @relation("TaskCreator", fields: [createdById], references: [id])
+  projectId             Int?
+  project               Project?     @relation(fields: [projectId], references: [id])
+  comments              TaskComment[]
+  activities            TaskActivity[]
+  attachments           TaskAttachment[]
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  deletedAt             DateTime?
+
+  @@index([assigneeId, status])
+  @@index([status, dueAt])
+  @@index([deletedAt])
+}
+
+model TaskComment {
+  id        Int       @id @default(autoincrement())
+  taskId    Int
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  authorId  Int
+  author    Employee  @relation("TaskCommentAuthor", fields: [authorId], references: [id])
+  body      String    @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([taskId, deletedAt])
+}
+
+model TaskActivity {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actorId   Int
+  actor     Employee @relation("TaskActivityActor", fields: [actorId], references: [id])
+  action    String   @db.VarChar(60)
+  message   String   @db.VarChar(1000)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([taskId, createdAt])
+}
+
+model TaskAttachment {
+  id           Int       @id @default(autoincrement())
+  taskId       Int
+  task         Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  uploadedById Int
+  uploadedBy   Employee  @relation("TaskAttachmentUploader", fields: [uploadedById], references: [id])
+  originalName String    @db.VarChar(255)
+  storedName   String    @db.VarChar(255)
+  mimeType     String    @db.VarChar(120)
+  size         Int
+  createdAt    DateTime  @default(now())
+  deletedAt    DateTime?
+
+  @@index([taskId, deletedAt])
+}
+
+// ── Projects ─────────────────────────────────────────────────────────
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+model Project {
+  id            Int          @id @default(autoincrement())
+  code          String       @unique @db.VarChar(30)
+  name          String       @db.VarChar(191)
+  description   String?      @db.Text
+  status        ProjectStatus @default(PLANNING)
+  startsAt      DateTime?
+  dueAt         DateTime?
+  drawingStatus String?      @db.VarChar(80)
+  siteProgress  Int          @default(0)
+  progress      Int          @default(0)
+  createdById   Int
+  createdBy     Employee     @relation("ProjectCreator", fields: [createdById], references: [id])
+  coordinatorId Int
+  coordinator   Employee     @relation("ProjectCoordinator", fields: [coordinatorId], references: [id])
+  milestones    Milestone[]
+  tasks         Task[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+
+  @@index([status, deletedAt])
+}
+
+model Milestone {
+  id          Int       @id @default(autoincrement())
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String    @db.VarChar(191)
+  description String?   @db.Text
+  dueAt       DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([projectId, dueAt])
+}
+
+// ── Leave, attendance & people ops ───────────────────────────────────
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model LeaveRequest {
+  id                   Int         @id @default(autoincrement())
+  employeeId           Int
+  employee             Employee    @relation(fields: [employeeId], references: [id])
+  type                 String      @db.VarChar(60)
+  startDate            DateTime    @db.Date
+  requestedEndDate     DateTime    @db.Date
+  endDate              DateTime    @db.Date // effective end after holiday credits
+  days                 Decimal     @db.Decimal(5, 1)
+  excludedHolidayCount Int         @default(0)
+  reason               String?     @db.VarChar(500)
+  status               LeaveStatus @default(PENDING)
+  reviewerNote         String?     @db.VarChar(500)
+  reviewedById         Int?
+  reviewedBy           User?       @relation("LeaveReviewer", fields: [reviewedById], references: [id])
+  reviewedAt           DateTime?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  deletedAt            DateTime?
+
+  @@index([employeeId, status])
+  @@index([status, deletedAt])
+}
+
+model PublicHoliday {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(120)
+  date      DateTime @db.Date
+  recurring Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+model Attendance {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  date       DateTime @db.Date
+  status     String   @db.VarChar(20) // PRESENT | LATE | ABSENT | REMOTE ...
+  checkInAt  DateTime?
+  checkOutAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@unique([employeeId, date])
+  @@index([date])
+}
+
+model PerformanceReview {
+  id             Int      @id @default(autoincrement())
+  employeeId     Int
+  employee       Employee @relation(fields: [employeeId], references: [id])
+  period         String   @db.VarChar(60)
+  rating         Decimal  @db.Decimal(3, 1) // 0.0 – 5.0
+  kpiAchievement Decimal  @db.Decimal(5, 1) @default(0) // percentage
+  notes          String?  @db.VarChar(1000)
+  reviewerId     Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  @@index([employeeId, deletedAt])
+}
+
+// ── Pay & benefits ───────────────────────────────────────────────────
+
+model StaffPayment {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  grossPay    Decimal  @db.Decimal(15, 2)
+  tax         Decimal  @db.Decimal(15, 2) @default(0)
+  deductions  Decimal  @db.Decimal(15, 2) @default(0)
+  netPay      Decimal  @db.Decimal(15, 2)
+  ratePerHour Decimal  @db.Decimal(15, 2)
+  currency    String   @db.VarChar(3) @default("NGN")
+  effectiveAt DateTime
+  updatedById Int
+  updatedBy   User     @relation(fields: [updatedById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([employeeId, effectiveAt])
+}
+
+model Payroll {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  period     DateTime @db.Date
+  gross      Decimal  @db.Decimal(15, 2)
+  deductions Decimal  @db.Decimal(15, 2) @default(0)
+  net        Decimal  @db.Decimal(15, 2)
+  currency   String   @db.VarChar(3) @default("NGN")
+  status     String   @db.VarChar(20) @default("PAID")
+  createdAt  DateTime @default(now())
+  deletedAt  DateTime?
+
+  @@index([employeeId, period])
+  @@index([period, deletedAt])
+}
+
+model Benefit {
+  id        Int               @id @default(autoincrement())
+  name      String            @unique @db.VarChar(160)
+  description String?         @db.VarChar(500)
+  employees EmployeeBenefit[]
+  createdAt DateTime          @default(now())
+}
+
+model EmployeeBenefit {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  benefitId  Int
+  benefit    Benefit  @relation(fields: [benefitId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([employeeId, benefitId])
+}
+
+// ── Training ─────────────────────────────────────────────────────────
+
+enum DeliveryMode {
+  IN_PERSON
+  ONLINE
+  HYBRID
+}
+
+enum TrainingStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Training {
+  id                Int            @id @default(autoincrement())
+  title             String         @db.VarChar(160)
+  description       String?        @db.VarChar(2000)
+  category          String         @db.VarChar(80)
+  deliveryMode      DeliveryMode
+  status            TrainingStatus @default(DRAFT)
+  startsAt          DateTime?
+  endsAt            DateTime?
+  certificationName String?        @db.VarChar(160)
+  performanceGoal   String?        @db.VarChar(500)
+  employees         EmployeeTraining[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  deletedAt         DateTime?
+
+  @@index([status, deletedAt])
+}
+
+model EmployeeTraining {
+  id                Int              @id @default(autoincrement())
+  trainingId        Int
+  training          Training         @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  employeeId        Int
+  employee          Employee         @relation(fields: [employeeId], references: [id])
+  status            EnrollmentStatus @default(ASSIGNED)
+  progress          Int              @default(0)
+  certificateNumber String?          @db.VarChar(160)
+  certificationUrl  String?          @db.VarChar(500)
+  expiresAt         DateTime?
+  completedAt       DateTime?
+  notes             String?          @db.VarChar(1000)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([employeeId, trainingId])
+  @@index([trainingId])
+}
+
+// ── Communication ────────────────────────────────────────────────────
+
+enum NotificationType {
+  GENERAL
+  MESSAGE
+  TASK
+  LEAVE
+  SYSTEM
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType @default(GENERAL)
+  title     String           @db.VarChar(200)
+  message   String           @db.VarChar(1000)
+  dedupeKey String?          @unique @db.VarChar(191)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  deletedAt DateTime?
+
+  @@index([userId, createdAt])
+}
+
+enum AudienceType {
+  INDIVIDUAL
+  DEPARTMENT
+  ALL
+}
+
+model Message {
+  id           Int          @id @default(autoincrement())
+  senderId     Int
+  sender       User         @relation("MessageSender", fields: [senderId], references: [id])
+  recipientId  Int
+  recipient    User         @relation("MessageRecipient", fields: [recipientId], references: [id])
+  audienceType AudienceType @default(INDIVIDUAL)
+  departmentId Int?
+  department   Department?  @relation(fields: [departmentId], references: [id])
+  groupKey     String       @db.VarChar(36)
+  announcement Boolean      @default(false)
+  subject      String       @db.VarChar(160)
+  body         String       @db.Text
+  readAt       DateTime?
+  createdAt    DateTime     @default(now())
+  deletedAt    DateTime?
+
+  @@index([recipientId, deletedAt])
+  @@index([senderId, deletedAt])
+  @@index([groupKey])
+}

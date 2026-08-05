@@ -12,7 +12,7 @@ const workflowPermissions = [
   "benefits:read", "training:manage", "messages:broadcast", "tasks:manage", "tasks:delete", "tasks:assign:any", "tasks:assign:hr", "tasks:assign:finance", "tasks:assign:project",
   "recruitment:manage", "disciplinary_actions:manage", "administration:manage", "hr_workflows:manage", "staff_profiles:read_all", "approvals:hr",
   "finance_dashboard:read", "purchase_requests:approve", "payments:approve", "finance_workflows:approve",
-  "project_dashboard:read", "deadlines:manage", "project_reports:read", "approvals:project",
+  "project_dashboard:read", "deadlines:manage", "approvals:project",
   "financial_reports:read", "approvals:finance",
 ];
 
