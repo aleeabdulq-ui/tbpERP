@@ -2,7 +2,7 @@
 
 Addressed to: The Information Service Manager, The Building Practice Limited
 
-Version 1.1 | 12 October 2026 | Commercial proposal — subject to formal acceptance
+Version 1.2 | 12 October 2026 | Commercial proposal — subject to formal acceptance
 
 # 1. EXECUTIVE BUSINESS PROPOSAL
 
