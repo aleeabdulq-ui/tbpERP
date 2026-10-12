@@ -2,7 +2,7 @@
 
 Addressed to: The Information Service Manager, The Building Practice Limited
 
-Version 1.2 | 12 October 2026 | Commercial proposal — subject to formal acceptance
+Version 1.3 | 12 October 2026 | Commercial proposal — subject to formal acceptance
 
 # 1. EXECUTIVE BUSINESS PROPOSAL
 
@@ -128,11 +128,11 @@ The commercial arrangement provides TBP with a perpetual enterprise license rath
 
 The proposed one-time enterprise license and implementation fee is:
 
-**₦4,500,000.00**
+**₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only)**
 
 The optional annual maintenance arrangement is:
 
-**₦675,000.00**
+**₦675,000.00 (Six Hundred and Seventy-Five Thousand Naira Only)**
 
 This structure separates ownership of the right to use the software from the recurring cost of maintaining and supporting its operation.
 
@@ -605,15 +605,15 @@ TBP may elect to adopt a different denominator for costing purposes.
 
 ### Example
 
-Employee Monthly Gross Salary: ₦950,000
+Employee Monthly Gross Salary: ₦950,000.00 (Nine Hundred and Fifty Thousand Naira Only)
 
 Standard Monthly Costing Hours: 195
 
-**Calculated Hourly Cost: ₦4,871.79**
+**Calculated Hourly Cost: ₦4,871.79 (Four Thousand, Eight Hundred and Seventy-One Naira and Seventy-Nine Kobo Only)**
 
 If the employee records 40 approved project hours:
 
-40 × ₦4,871.79 = **₦194,871.60**
+40 × ₦4,871.79 (Four Thousand, Eight Hundred and Seventy-One Naira and Seventy-Nine Kobo Only) = **₦194,871.60 (One Hundred and Ninety-Four Thousand, Eight Hundred and Seventy-One Naira and Sixty Kobo Only)**
 
 This amount becomes the attributable labour cost for that employee's recorded work.
 
@@ -678,18 +678,18 @@ Consider the following illustrative project:
 
 | Financial Component | Amount |
 |---|---:|
-| Original Contract Value | ₦25,000,000 |
-| Approved Client Variations | ₦2,500,000 |
-| Revised Contract Value | ₦27,500,000 |
-| Staff Labour Cost | ₦4,200,000 |
-| Procurement and Materials | ₦6,800,000 |
-| Subcontractor Expenditure | ₦3,500,000 |
-| Site and Operational Expenses | ₦1,200,000 |
-| Total Attributable Project Cost | ₦15,700,000 |
-| Estimated Gross Profit | ₦11,800,000 |
+| Original Contract Value | ₦25,000,000.00 (Twenty-Five Million Naira Only) |
+| Approved Client Variations | ₦2,500,000.00 (Two Million, Five Hundred Thousand Naira Only) |
+| Revised Contract Value | ₦27,500,000.00 (Twenty-Seven Million, Five Hundred Thousand Naira Only) |
+| Staff Labour Cost | ₦4,200,000.00 (Four Million, Two Hundred Thousand Naira Only) |
+| Procurement and Materials | ₦6,800,000.00 (Six Million, Eight Hundred Thousand Naira Only) |
+| Subcontractor Expenditure | ₦3,500,000.00 (Three Million, Five Hundred Thousand Naira Only) |
+| Site and Operational Expenses | ₦1,200,000.00 (One Million, Two Hundred Thousand Naira Only) |
+| Total Attributable Project Cost | ₦15,700,000.00 (Fifteen Million, Seven Hundred Thousand Naira Only) |
+| Estimated Gross Profit | ₦11,800,000.00 (Eleven Million, Eight Hundred Thousand Naira Only) |
 | Estimated Gross Profit Margin | 42.91% |
 
-These figures are illustrative, not a forecast of actual TBP project performance. The stated estimated gross profit assumes that ₦15,700,000 represents forecast total project cost. If it represents only cost-to-date, remaining forecast costs must be included before calculating projected gross profit.
+These figures are illustrative, not a forecast of actual TBP project performance. The stated estimated gross profit assumes that ₦15,700,000.00 (Fifteen Million, Seven Hundred Thousand Naira Only) represents forecast total project cost. If it represents only cost-to-date, remaining forecast costs must be included before calculating projected gross profit.
 
 Actual financial reporting will depend on complete, approved and accurately classified transaction records.
 
@@ -915,8 +915,7 @@ The final handover package will include:
 
 The standard commercial valuation for the proposed enterprise implementation and perpetual software license is:
 
-### ₦9,000,000.00
-**Nine Million Naira Only**
+### ₦9,000,000.00 (Nine Million Naira Only)
 
 This valuation represents the proposed development, configuration, implementation and enterprise licensing arrangement.
 
@@ -928,14 +927,13 @@ The concession reduces the proposed enterprise investment by 50%.
 
 | Commercial Description | Amount |
 |---|---:|
-| Standard Enterprise Valuation | ₦9,000,000 |
-| Preferential Commercial Concession (50%) | −₦4,500,000 |
-| **Final Proposed Enterprise Investment** | **₦4,500,000** |
+| Standard Enterprise Valuation | ₦9,000,000.00 (Nine Million Naira Only) |
+| Preferential Commercial Concession (50%) | −₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only) |
+| **Final Proposed Enterprise Investment** | **₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only)** |
 
 ### FINAL PROPOSED CONTRACT VALUE
 
-### ₦4,500,000.00
-**Four Million, Five Hundred Thousand Naira Only**
+### ₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only)
 
 This amount covers the agreed implementation scope and the perpetual right to use the delivered TBP ERP application.
 
@@ -949,16 +947,16 @@ The total amount will be paid in three installments.
 
 | Payment Stage | Description | Amount |
 |---|---|---:|
-| First Installment | Contract acceptance and project mobilization | ₦1,500,000 |
-| Second Installment | Successful staging delivery and UAT acceptance | ₦1,500,000 |
-| Third Installment | Production deployment, training and formal handover | ₦1,500,000 |
-| **TOTAL** | **Full Implementation and Perpetual Enterprise License** | **₦4,500,000** |
+| Initial Commitment Fee | Contract acceptance and project mobilization | ₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only) |
+| Second Installment | Successful staging delivery and UAT acceptance | ₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only) |
+| Third Installment | Production deployment, training and formal handover | ₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only) |
+| **TOTAL** | **Full Implementation and Perpetual Enterprise License** | **₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only)** |
 
 ## 12.1 Initial Commitment Payment
 
 The initial commitment fee of:
 
-**₦1,500,000.00**
+**₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only)**
 
 will become payable upon execution of the agreement and issuance of the corresponding invoice.
 
@@ -968,7 +966,7 @@ This payment will authorize formal project mobilization and commencement of the 
 
 The second installment of:
 
-**₦1,500,000.00**
+**₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only)**
 
 will become payable following successful staging delivery and documented UAT acceptance.
 
@@ -976,7 +974,7 @@ will become payable following successful staging delivery and documented UAT acc
 
 The final installment of:
 
-**₦1,500,000.00**
+**₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only)**
 
 will become payable upon successful production deployment, agreed training and formal handover.
 
@@ -1032,13 +1030,12 @@ Following the complimentary warranty period, TBP may elect to subscribe to an an
 
 ### Proposed Annual Fee
 
-### ₦675,000.00
+### ₦675,000.00 (Six Hundred and Seventy-Five Thousand Naira Only)
 
-**Six Hundred and Seventy-Five Thousand Naira Only**
 
 Equivalent to:
 
-**₦56,250 per month**, calculated for comparison purposes.
+**₦56,250.00 (Fifty-Six Thousand, Two Hundred and Fifty Naira Only) per month**, calculated for comparison purposes.
 
 The subscription will cover the agreed ongoing maintenance services, including:
 
@@ -1088,13 +1085,13 @@ TBP ERP represents an opportunity for The Building Practice Limited to establish
 
 The proposed platform will consolidate departmental processes, improve accountability, strengthen operational reporting and introduce project profitability analysis that incorporates employee labour costs alongside procurement and other project expenditure.
 
-The commercial proposal provides TBP with a preferential enterprise investment of **₦4,500,000**, representing a 50% concession against the proposed standard valuation of ₦9,000,000.
+The commercial proposal provides TBP with a preferential enterprise investment of **₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only)**, representing a 50% concession against the proposed standard valuation of ₦9,000,000.00 (Nine Million Naira Only).
 
 The arrangement includes a perpetual enterprise software license, phased implementation, formal testing, staff training, production handover and a 90-day complimentary warranty.
 
-An optional annual maintenance agreement of **₦675,000** will provide a structured mechanism for continued technical support, preventive maintenance and agreed updates.
+An optional annual maintenance agreement of **₦675,000.00 (Six Hundred and Seventy-Five Thousand Naira Only)** will provide a structured mechanism for continued technical support, preventive maintenance and agreed updates.
 
-**Approval of this proposal will authorize the parties to proceed with the Master Software License, Implementation and Service Level Agreement and commence formal project mobilization upon payment of the initial ₦1,500,000 commitment fee.**
+**Approval of this proposal will authorize the parties to proceed with the Master Software License, Implementation and Service Level Agreement and commence formal project mobilization upon payment of the initial ₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only) commitment fee.**
 
 ---
 
@@ -1106,17 +1103,17 @@ An optional annual maintenance agreement of **₦675,000** will provide a struct
 | Client | The Building Practice Limited |
 | Addressee and primary coordinator | The Information Service Manager |
 | Organisational coverage | Six departments; ten integrated modules |
-| Standard proposed commercial valuation | ₦9,000,000 |
-| Preferential Enterprise Partnership Concession | 50% (₦4,500,000) |
-| Final proposed contract value | ₦4,500,000 |
-| First instalment | ₦1,500,000 — execution and invoice / mobilisation |
-| Second instalment | ₦1,500,000 — staging delivery and written UAT acceptance |
-| Third instalment | ₦1,500,000 — production deployment, training and handover |
+| Standard proposed commercial valuation | ₦9,000,000.00 (Nine Million Naira Only) |
+| Preferential Enterprise Partnership Concession | 50% (₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only)) |
+| Final proposed contract value | ₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only) |
+| Initial commitment fee | ₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only) — execution and invoice / mobilisation |
+| Second instalment | ₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only) — staging delivery and written UAT acceptance |
+| Third instalment | ₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only) — production deployment, training and handover |
 | Licence | Perpetual enterprise licence upon full payment |
 | Per-employee / per-department licence fee | None for the licensed application |
 | Target deployment | On or before 31 December 2026, subject to baselining |
 | Complimentary warranty | 90 calendar days from production acceptance |
-| Optional annual maintenance | ₦675,000; separately activated after warranty |
+| Optional annual maintenance | ₦675,000.00 (Six Hundred and Seventy-Five Thousand Naira Only); separately activated after warranty |
 | Final approval authority | Authorised TBP executive management |
 
 ## 18.1 Matters requiring confirmation before execution
@@ -1125,11 +1122,11 @@ The proposed standard valuation is the provider's commercial reference, not an i
 
 Before execution, the parties shall confirm their legal identities and addresses; source-code access and third-party maintenance rights; the treatment of VAT and statutory deductions; invoice payment periods; hosting and third-party budgets; the verified development-status register; the implementation baseline; data migration responsibilities; and the precise maintenance coverage, service levels and recovery objectives.
 
-A perpetual licence does not transfer intellectual property automatically and does not include perpetual free hosting, unlimited enhancements or indefinite technical support. The source-code arrangement must be expressly selected in the separate agreement. The proposed ₦675,000 annual fee must be supported by a sustainable, explicitly defined service scope.
+A perpetual licence does not transfer intellectual property automatically and does not include perpetual free hosting, unlimited enhancements or indefinite technical support. The source-code arrangement must be expressly selected in the separate agreement. The proposed ₦675,000.00 (Six Hundred and Seventy-Five Thousand Naira Only) annual fee must be supported by a sustainable, explicitly defined service scope.
 
 ## 18.2 Approval requested
 
-Authorisation is requested to proceed with contract finalisation for the proposed TBP ERP implementation and perpetual enterprise licence at ₦4,500,000, and to release the first ₦1,500,000 instalment following execution and receipt of the corresponding invoice. Approval of this proposal does not replace the separate executed agreement or resolve its outstanding provisions.
+Authorisation is requested to proceed with contract finalisation for the proposed TBP ERP implementation and perpetual enterprise licence at ₦4,500,000.00 (Four Million, Five Hundred Thousand Naira Only) and to release the first ₦1,500,000.00 (One Million, Five Hundred Thousand Naira Only) instalment following execution and receipt of the corresponding invoice. Approval of this proposal does not replace the separate executed agreement or resolve its outstanding provisions.
 
 | Approval record | Completion by authorised representatives |
 |---|---|

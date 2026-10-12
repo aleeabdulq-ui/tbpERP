@@ -75,7 +75,33 @@ Authorisation is requested to proceed with contract finalisation for the propose
 
 The Information Service Manager's acknowledgment confirms project coordination and does not independently make the signatory a contracting party or confer executive approval authority.
 '''
-(OUT/'source/01-executive.md').write_text('# TBP ERP — Executive Business Proposal\n\nAddressed to: The Information Service Manager, The Building Practice Limited\n\nVersion 1.2 | 12 October 2026 | Commercial proposal — subject to formal acceptance\n\n'+body)
+def number_words(n):
+    small = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
+    tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+    if n < 20: return small[n]
+    if n < 100: return tens[n // 10] + ('-' + small[n % 10] if n % 10 else '')
+    if n < 1000: return small[n // 100] + ' Hundred' + (' and ' + number_words(n % 100) if n % 100 else '')
+    for value, name in [(1000000000, 'Billion'), (1000000, 'Million'), (1000, 'Thousand')]:
+        if n >= value:
+            rest = n % value
+            return number_words(n // value) + ' ' + name + ((' and ' if rest < 100 else ', ') + number_words(rest) if rest else '')
+
+def money_words(text):
+    pattern = re.compile(r'₦([0-9][0-9,]*(?:\.[0-9]{2})?)')
+    def replace(m):
+        parts = m.group(1).replace(',', '').split('.')
+        naira = int(parts[0]); kobo = int(parts[1]) if len(parts) > 1 else 0
+        words = number_words(naira) + ' Naira' + (' and ' + number_words(kobo) + ' Kobo' if kobo else '') + ' Only'
+        suffix = ' (' + words + ')'
+        figure = '₦' + format(naira, ',') + '.' + format(kobo, '02d')
+        return figure if text[m.end():].startswith(suffix) else figure + suffix
+    return pattern.sub(replace, text)
+
+# Apply one consistent currency convention to the publication source and renderer.
+body = re.sub(r'^\*\*(?:Nine Million Naira Only|Four Million, Five Hundred Thousand Naira Only|Six Hundred and Seventy-Five Thousand Naira Only)\*\*\s*$', '', body, flags=re.M)
+body = body.replace('| First Installment |', '| Initial Commitment Fee |').replace('| First instalment |', '| Initial commitment fee |')
+body = money_words(body)
+(OUT/'source/01-executive.md').write_text('# TBP ERP — Executive Business Proposal\n\nAddressed to: The Information Service Manager, The Building Practice Limited\n\nVersion 1.3 | 12 October 2026 | Commercial proposal — subject to formal acceptance\n\n'+body)
 NAVY=colors.HexColor('#172D43'); GREY=colors.HexColor('#526170')
 styles={
 'p':ParagraphStyle('Body',fontName='TBP',fontSize=8.3,leading=12,spaceAfter=5,textColor=colors.HexColor('#26323C')),
@@ -88,7 +114,7 @@ styles={
 'sub':ParagraphStyle('Sub',fontName='TBP',fontSize=12,leading=18,textColor=GREY,spaceAfter=12),
 }
 def markup(s):
-    s=escape(s)
+    s=escape(money_words(s))
     s=re.sub(r'\*\*(.*?)\*\*',r'<b>\1</b>',s)
     s=re.sub(r'`([^`]+)`',r'\1',s)
     return s
@@ -108,7 +134,7 @@ class Doc(BaseDocTemplate):
             self.notify('TOCEntry',(0,title,self.page,key))
 def footer(c,d):
     c.setFont('TBP',7);c.setFillColor(GREY)
-    c.drawString(56,53,'CONFIDENTIAL  •  TBP-ERP/PROP/2026/001  •  v1.2')
+    c.drawString(56,53,'CONFIDENTIAL  •  TBP-ERP/PROP/2026/001  •  v1.3')
     c.drawRightString(539,53,f'{d.page}')
     c.setStrokeColor(colors.HexColor('#CFD8E0'));c.line(56,65,539,65)
 def interior_page(c,d):
@@ -121,7 +147,7 @@ def interior_page(c,d):
     c.setStrokeColor(colors.HexColor('#CFD8E0'));c.setLineWidth(0.5)
     c.line(56,778,539,778)
     c.restoreState()
-story=[NextPageTemplate('Interior'),Spacer(1,37),P('TBP ERP','cover'),P('Executive Business Proposal','sub'),P('Enterprise Resource Planning System','sub'),Spacer(1,15),P('**Comprehensive Software Documentation, Implementation Proposal & Commercial Investment Offer**'),Spacer(1,25),P('**ADDRESSED TO**'),P('The Information Service Manager\n'.strip()),P('**The Building Practice Limited**'),P('Lagos, Federal Republic of Nigeria'),Spacer(1,25),table([['Commercial offer','₦4,500,000.00'],['Licence arrangement','Perpetual enterprise software licence'],['Target production deployment','On or before 31 December 2026; subject to approved baseline'],['Proposal date / reference','12 October 2026 / TBP-ERP/PROP/2026/001'],['Status','Commercial proposal — subject to formal acceptance']]),Spacer(1,15),P('**CONFIDENTIAL BUSINESS PROPOSAL**'),Spacer(1,8),P('TBP ERP is proposed as a unified operational platform connecting six departments through ten integrated modules. The investment is intended to strengthen accountability, improve project-cost visibility and provide management with dependable information for timely decisions.'),P('The ₦4,500,000 offer combines the approved implementation scope with a perpetual enterprise licence, phased acceptance, staff training and a 90-day post-acceptance warranty. Optional annual maintenance is available separately at ₦675,000, subject to an agreed service scope.'),P('Prepared for confidential consideration by authorised TBP stakeholders and professional advisers. Commercial and implementation provisions remain subject to formal acceptance and the executed agreement.'),PageBreak(),P('Document control','h1'),table([['Control item','Record'],['Title','TBP ERP — Executive Business Proposal'],['Version / date','1.2 / 12 October 2026'],['Reference','TBP-ERP/PROP/2026/001'],['Client','The Building Practice Limited'],['Addressee','The Information Service Manager'],['Issuing letterhead','Moongale; legal contracting identity to be confirmed in the agreement'],['Status','Commercial proposal — subject to formal acceptance'],['Audience','Information Service Manager, executive management, directors and departmental heads'],['Source basis','Supplied executive proposal and matching repository DOCX; commercial figures and ten-module scope retained'],['Control note','Proposed terms require formal acceptance. This document is not the Master Software License Agreement.']]),Spacer(1,14),P('Purpose and submission','h2'),P('This proposal is submitted to the Information Service Manager for coordination of departmental review and onward consideration by authorised executive management. It presents TBP ERP as a structured enterprise technology investment, with defined scope, phased payments, acceptance requirements and continuity considerations.'),P('The technical and legal terms are to be established in the separately approved functional specification, implementation plan and executed agreement. The target deployment date remains subject to technical assessment, timely mobilisation and client readiness.'),Spacer(1,10),P('Review priorities and approval pathway','h2'),P('Departmental review should confirm that the proposed workflows reflect TBP’s operating requirements, identify the owners of critical records and approvals, and establish the information required for migration and testing. Finance and legal representatives should confirm the commercial, tax, licensing and support provisions before execution.'),P('The Information Service Manager is requested to consolidate departmental comments and coordinate their resolution with the provider. Authorised executive management may then consider the investment and approve contract finalisation. Mobilisation follows execution and the initial ₦1,500,000 payment against invoice; subsequent payments remain linked to documented acceptance milestones.'),P('Expected organisational outcome','h2'),P('The intended result is a controlled enterprise platform that links employee activity, project delivery, procurement and financial reporting. Its value will depend on accurate records, consistent use, clearly delegated authority and successful verification of the agreed workflows—not software deployment alone.'),PageBreak(),P('Contents','h2')]
+story=[NextPageTemplate('Interior'),Spacer(1,37),P('TBP ERP','cover'),P('Executive Business Proposal','sub'),P('Enterprise Resource Planning System','sub'),Spacer(1,15),P('**Comprehensive Software Documentation, Implementation Proposal & Commercial Investment Offer**'),Spacer(1,25),P('**ADDRESSED TO**'),P('The Information Service Manager\n'.strip()),P('**The Building Practice Limited**'),P('Lagos, Federal Republic of Nigeria'),Spacer(1,25),table([['Commercial offer','₦4,500,000.00'],['Initial commitment fee','₦1,500,000.00 — payable upon contract execution and invoice; forms part of the total contract value.'],['Licence arrangement','Perpetual enterprise software licence'],['Target production deployment','On or before 31 December 2026; subject to approved baseline'],['Proposal date / reference','12 October 2026 / TBP-ERP/PROP/2026/001'],['Status','Commercial proposal — subject to formal acceptance']]),Spacer(1,15),P('**CONFIDENTIAL BUSINESS PROPOSAL**'),Spacer(1,8),P('TBP ERP is proposed as a unified operational platform connecting six departments through ten integrated modules. The investment is intended to strengthen accountability, improve project-cost visibility and provide management with dependable information for timely decisions.'),P('The ₦4,500,000 offer combines the approved implementation scope with a perpetual enterprise licence, phased acceptance, staff training and a 90-day post-acceptance warranty. Optional annual maintenance is available separately at ₦675,000, subject to an agreed service scope.'),P('Prepared for confidential consideration by authorised TBP stakeholders and professional advisers. Commercial and implementation provisions remain subject to formal acceptance and the executed agreement.'),PageBreak(),P('Document control','h1'),table([['Control item','Record'],['Title','TBP ERP — Executive Business Proposal'],['Version / date','1.3 / 12 October 2026'],['Reference','TBP-ERP/PROP/2026/001'],['Client','The Building Practice Limited'],['Addressee','The Information Service Manager'],['Issuing letterhead','Moongale; legal contracting identity to be confirmed in the agreement'],['Status','Commercial proposal — subject to formal acceptance'],['Audience','Information Service Manager, executive management, directors and departmental heads'],['Source basis','Supplied executive proposal and matching repository DOCX; commercial figures and ten-module scope retained'],['Control note','Proposed terms require formal acceptance. This document is not the Master Software License Agreement.']]),Spacer(1,14),P('Purpose and submission','h2'),P('Submitted to the Information Service Manager for departmental review and executive consideration, this proposal presents TBP ERP as a structured enterprise investment with defined scope, phased payments, acceptance requirements and continuity provisions.'),P('Technical and legal terms require an approved specification, implementation plan and executed agreement. Deployment remains subject to technical assessment, timely mobilisation and client readiness.'),Spacer(1,10),P('Review priorities and approval pathway','h2'),P('Departmental reviewers should validate workflows, nominate record owners and approvers, and confirm migration and testing requirements. Finance and legal representatives should verify commercial, tax, licensing and support provisions before execution.'),P('The Information Service Manager is requested to consolidate departmental comments and coordinate their resolution with the provider. Authorised executive management may then consider the investment and approve contract finalisation. Mobilisation follows execution and the initial ₦1,500,000 commitment fee against invoice; subsequent payments remain linked to documented acceptance milestones.'),P('Expected organisational outcome','h2'),P('The intended result is a controlled enterprise platform that links employee activity, project delivery, procurement and financial reporting. Its value will depend on accurate records, consistent use, clearly delegated authority and successful verification of the agreed workflows—not software deployment alone.'),PageBreak(),P('Contents','h2')]
 toc=TableOfContents();toc.levelStyles=[ParagraphStyle('TOC',fontName='TBP',fontSize=8.5,leading=12,spaceBefore=4,rightIndent=20)]
 story.extend([toc,PageBreak()])
 lines=body.splitlines();i=0
