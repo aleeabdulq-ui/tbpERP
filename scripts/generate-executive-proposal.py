@@ -5,13 +5,14 @@ Requires DejaVu Sans fonts (Debian fonts-dejavu-core).
 from pathlib import Path
 import re, io, copy, zipfile, xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+from reportlab.platypus import BaseDocTemplate, Frame, PageTemplate, NextPageTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.platypus.tableofcontents import TableOfContents
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from pypdf import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter, Transformation
+from pypdf.generic import RectangleObject
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'docs/corporate'; OUT.mkdir(exist_ok=True)
 for name,file in [('TBP','DejaVuSans.ttf'),('TBP-Bold','DejaVuSans-Bold.ttf')]:
@@ -74,17 +75,17 @@ Authorisation is requested to proceed with contract finalisation for the propose
 
 The Information Service Manager's acknowledgment confirms project coordination and does not independently make the signatory a contracting party or confer executive approval authority.
 '''
-(OUT/'source/01-executive.md').write_text('# TBP ERP — Executive Business Proposal\n\nAddressed to: The Information Service Manager, The Building Practice Limited\n\nVersion 1.0 | 12 October 2026 | Commercial proposal — subject to formal acceptance\n\n'+body)
+(OUT/'source/01-executive.md').write_text('# TBP ERP — Executive Business Proposal\n\nAddressed to: The Information Service Manager, The Building Practice Limited\n\nVersion 1.1 | 12 October 2026 | Commercial proposal — subject to formal acceptance\n\n'+body)
 NAVY=colors.HexColor('#172D43'); GREY=colors.HexColor('#526170')
 styles={
-'p':ParagraphStyle('Body',fontName='TBP',fontSize=9.3,leading=14,spaceAfter=7,textColor=colors.HexColor('#26323C')),
-'h1':ParagraphStyle('H1',fontName='TBP-Bold',fontSize=14,leading=19,spaceBefore=17,spaceAfter=10,textColor=NAVY,keepWithNext=True),
-'h2':ParagraphStyle('H2',fontName='TBP-Bold',fontSize=11,leading=15,spaceBefore=12,spaceAfter=7,textColor=NAVY,keepWithNext=True),
-'h3':ParagraphStyle('H3',fontName='TBP-Bold',fontSize=10,leading=14,spaceBefore=9,spaceAfter=5,textColor=NAVY,keepWithNext=True),
-'bullet':ParagraphStyle('Bullet',fontName='TBP',fontSize=9.3,leading=13,spaceAfter=3,leftIndent=10,firstLineIndent=-8,textColor=colors.HexColor('#26323C')),
-'cell':ParagraphStyle('Cell',fontName='TBP',fontSize=8.3,leading=12,spaceAfter=1),
-'cover':ParagraphStyle('Cover',fontName='TBP-Bold',fontSize=31,leading=39,textColor=NAVY,spaceAfter=14),
-'sub':ParagraphStyle('Sub',fontName='TBP',fontSize=14,leading=21,textColor=GREY,spaceAfter=12),
+'p':ParagraphStyle('Body',fontName='TBP',fontSize=8.3,leading=12,spaceAfter=5,textColor=colors.HexColor('#26323C')),
+'h1':ParagraphStyle('H1',fontName='TBP-Bold',fontSize=12,leading=16,spaceBefore=15,spaceAfter=8,textColor=NAVY,keepWithNext=True),
+'h2':ParagraphStyle('H2',fontName='TBP-Bold',fontSize=10,leading=14,spaceBefore=11,spaceAfter=6,textColor=NAVY,keepWithNext=True),
+'h3':ParagraphStyle('H3',fontName='TBP-Bold',fontSize=9,leading=12,spaceBefore=8,spaceAfter=4,textColor=NAVY,keepWithNext=True),
+'bullet':ParagraphStyle('Bullet',fontName='TBP',fontSize=8.3,leading=11.5,spaceAfter=2,leftIndent=10,firstLineIndent=-8,textColor=colors.HexColor('#26323C')),
+'cell':ParagraphStyle('Cell',fontName='TBP',fontSize=7.8,leading=10.8,spaceAfter=1),
+'cover':ParagraphStyle('Cover',fontName='TBP-Bold',fontSize=29,leading=36,textColor=NAVY,spaceAfter=14),
+'sub':ParagraphStyle('Sub',fontName='TBP',fontSize=12,leading=18,textColor=GREY,spaceAfter=12),
 }
 def markup(s):
     s=escape(s)
@@ -97,9 +98,9 @@ def table(rows,widths=None):
     n=len(rows[0]); widths=widths or ([150,333] if n==2 else [483/n]*n)
     content=[[P(c,'cell') for c in row] for row in rows]
     t=Table(content,colWidths=widths,repeatRows=1,hAlign='LEFT')
-    t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#E6EDF3')),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#F7F9FB')]),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),7),('BOTTOMPADDING',(0,0),(-1,-1),7),('LINEBELOW',(0,0),(-1,0),0.6,colors.HexColor('#AAB9C5')),('LINEBELOW',(0,1),(-1,-1),0.25,colors.HexColor('#DCE3E9'))]))
+    t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#E6EDF3')),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#F7F9FB')]),('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),6),('LINEBELOW',(0,0),(-1,0),0.6,colors.HexColor('#AAB9C5')),('LINEBELOW',(0,1),(-1,-1),0.25,colors.HexColor('#DCE3E9'))]))
     return t
-class Doc(SimpleDocTemplate):
+class Doc(BaseDocTemplate):
     def afterFlowable(self,f):
         if isinstance(f,Paragraph) and f.style.name=='H1':
             title=f.getPlainText(); key='s'+str(self.seq.nextf('heading'))
@@ -107,10 +108,20 @@ class Doc(SimpleDocTemplate):
             self.notify('TOCEntry',(0,title,self.page,key))
 def footer(c,d):
     c.setFont('TBP',7);c.setFillColor(GREY)
-    c.drawString(56,53,'CONFIDENTIAL  •  TBP-ERP/PROP/2026/001  •  v1.0')
+    c.drawString(56,53,'CONFIDENTIAL  •  TBP-ERP/PROP/2026/001  •  v1.1')
     c.drawRightString(539,53,f'{d.page}')
     c.setStrokeColor(colors.HexColor('#CFD8E0'));c.line(56,65,539,65)
-story=[Spacer(1,37),P('TBP ERP','cover'),P('Executive Business Proposal','sub'),P('Enterprise Resource Planning System','sub'),Spacer(1,15),P('**Comprehensive Software Documentation, Implementation Proposal & Commercial Investment Offer**'),Spacer(1,25),P('**ADDRESSED TO**'),P('The Information Service Manager\n'.strip()),P('**The Building Practice Limited**'),P('Lagos, Federal Republic of Nigeria'),Spacer(1,25),table([['Commercial offer','₦4,500,000.00'],['Licence arrangement','Perpetual enterprise software licence'],['Target production deployment','On or before 31 December 2026; subject to approved baseline'],['Proposal date / reference','12 October 2026 / TBP-ERP/PROP/2026/001'],['Status','Commercial proposal — subject to formal acceptance']]),Spacer(1,15),P('**CONFIDENTIAL BUSINESS PROPOSAL**'),PageBreak(),P('Document control','h1'),table([['Control item','Record'],['Title','TBP ERP — Executive Business Proposal'],['Version / date','1.0 / 12 October 2026'],['Reference','TBP-ERP/PROP/2026/001'],['Client','The Building Practice Limited'],['Addressee','The Information Service Manager'],['Issuing letterhead','Moongale; legal contracting identity to be confirmed in the agreement'],['Status','Commercial proposal — subject to formal acceptance'],['Audience','Information Service Manager, executive management, directors and departmental heads'],['Source basis','Supplied executive proposal and matching repository DOCX; commercial figures and ten-module scope retained'],['Control note','Proposed terms require formal acceptance. This document is not the Master Software License Agreement.']]),Spacer(1,14),P('Purpose and submission','h2'),P('This proposal is submitted to the Information Service Manager for coordination of departmental review and onward consideration by authorised executive management. It presents TBP ERP as a structured enterprise technology investment, with defined scope, phased payments, acceptance requirements and continuity considerations.'),P('The technical and legal terms are to be established in the separately approved functional specification, implementation plan and executed agreement. The target deployment date remains subject to technical assessment, timely mobilisation and client readiness.'),PageBreak(),P('Contents','h2')]
+def interior_page(c,d):
+    footer(c,d)
+    c.saveState()
+    c.setFont('TBP-Bold',7.2);c.setFillColor(NAVY)
+    c.drawRightString(539,804,'TBP ERP  /  EXECUTIVE BUSINESS PROPOSAL')
+    c.setFont('TBP',6.5);c.setFillColor(GREY)
+    c.drawRightString(539,792,'THE BUILDING PRACTICE LIMITED')
+    c.setStrokeColor(colors.HexColor('#CFD8E0'));c.setLineWidth(0.5)
+    c.line(56,778,539,778)
+    c.restoreState()
+story=[NextPageTemplate('Interior'),Spacer(1,37),P('TBP ERP','cover'),P('Executive Business Proposal','sub'),P('Enterprise Resource Planning System','sub'),Spacer(1,15),P('**Comprehensive Software Documentation, Implementation Proposal & Commercial Investment Offer**'),Spacer(1,25),P('**ADDRESSED TO**'),P('The Information Service Manager\n'.strip()),P('**The Building Practice Limited**'),P('Lagos, Federal Republic of Nigeria'),Spacer(1,25),table([['Commercial offer','₦4,500,000.00'],['Licence arrangement','Perpetual enterprise software licence'],['Target production deployment','On or before 31 December 2026; subject to approved baseline'],['Proposal date / reference','12 October 2026 / TBP-ERP/PROP/2026/001'],['Status','Commercial proposal — subject to formal acceptance']]),Spacer(1,15),P('**CONFIDENTIAL BUSINESS PROPOSAL**'),PageBreak(),P('Document control','h1'),table([['Control item','Record'],['Title','TBP ERP — Executive Business Proposal'],['Version / date','1.1 / 12 October 2026'],['Reference','TBP-ERP/PROP/2026/001'],['Client','The Building Practice Limited'],['Addressee','The Information Service Manager'],['Issuing letterhead','Moongale; legal contracting identity to be confirmed in the agreement'],['Status','Commercial proposal — subject to formal acceptance'],['Audience','Information Service Manager, executive management, directors and departmental heads'],['Source basis','Supplied executive proposal and matching repository DOCX; commercial figures and ten-module scope retained'],['Control note','Proposed terms require formal acceptance. This document is not the Master Software License Agreement.']]),Spacer(1,14),P('Purpose and submission','h2'),P('This proposal is submitted to the Information Service Manager for coordination of departmental review and onward consideration by authorised executive management. It presents TBP ERP as a structured enterprise technology investment, with defined scope, phased payments, acceptance requirements and continuity considerations.'),P('The technical and legal terms are to be established in the separately approved functional specification, implementation plan and executed agreement. The target deployment date remains subject to technical assessment, timely mobilisation and client readiness.'),PageBreak(),P('Contents','h2')]
 toc=TableOfContents();toc.levelStyles=[ParagraphStyle('TOC',fontName='TBP',fontSize=8.5,leading=12,spaceBefore=4,rightIndent=20)]
 story.extend([toc,PageBreak()])
 lines=body.splitlines();i=0
@@ -132,12 +143,25 @@ while i<len(lines):
     if line.startswith('- '):
         story.append(P('• '+line[2:],'bullet'));continue
     story.append(P(line))
-buf=io.BytesIO();doc=Doc(buf,pagesize=(595.44,841.92),leftMargin=56,rightMargin=56.44,topMargin=104,bottomMargin=86,title='TBP ERP — Executive Business Proposal',author='Moongale',subject='Submitted to the Information Service Manager, The Building Practice Limited')
-doc.multiBuild(story,onFirstPage=footer,onLaterPages=footer)
+buf=io.BytesIO();doc=Doc(buf,pagesize=(595.44,841.92),leftMargin=56,rightMargin=56.44,topMargin=88,bottomMargin=86,title='TBP ERP — Executive Business Proposal',author='Moongale',subject='Submitted to the Information Service Manager, The Building Practice Limited')
+doc.addPageTemplates([
+    PageTemplate(id='Cover',frames=[Frame(56,86,483,651.92,id='cover')],onPage=footer),
+    PageTemplate(id='Interior',frames=[Frame(56,86,483,667.92,id='interior')],onPage=interior_page),
+])
+doc.multiBuild(story)
 reader=PdfReader(buf);letter=PdfReader(ROOT/'moongale_llc_letterhead.pdf').pages[0]
-# Preserve the original letterhead as a vector background, including logo and footer.
-for page in reader.pages:
-    page.merge_page(letter,over=False)
+# Cover uses the complete official letterhead, unaltered. Interior pages reuse
+# only its original footer and a clipped, smaller vector logo (not a new brand).
+footer_art=copy.deepcopy(letter)
+footer_art.cropbox=RectangleObject((0,0,595.44,45))
+small_logo=copy.deepcopy(letter)
+small_logo.cropbox=RectangleObject((45,773,285,825))
+for index,page in enumerate(reader.pages):
+    if index==0:
+        page.merge_page(letter,over=False)
+    else:
+        page.merge_page(footer_art,over=False)
+        page.merge_transformed_page(small_logo,Transformation().scale(0.62).translate(21.28,302),over=False)
 writer=PdfWriter();writer.append(reader)
 writer.add_metadata({'/Title':'TBP ERP — Executive Business Proposal','/Author':'Moongale','/Subject':'The Information Service Manager — The Building Practice Limited','/Keywords':'TBP ERP, executive proposal, ₦4,500,000'})
 file=OUT/'TBP ERP — Executive Business Proposal.pdf'
